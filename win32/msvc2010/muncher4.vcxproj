@@ -28,7 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\getopts.c" />
-    <ClCompile Include="..\..\src\muncher4.c" />
+    <ClCompile Include="..\..\src\muncher4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\getopts.h" />
