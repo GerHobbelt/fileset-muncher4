@@ -14,4 +14,12 @@
 *.exe
 *.user
 *.bak
+
+*.sdf
+*.opensdf
+*.suo
+
 muncher4
+win32/msvc2010/bin
+win32/msvc2010/obj
+win32/msvc2010/ipch
