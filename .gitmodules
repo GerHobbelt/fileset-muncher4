@@ -1,0 +1,12 @@
+[submodule "libtre"]
+	path = libtre
+	url = git@github.com:GerHobbelt/libtre.git
+[submodule "linenoise"]
+	path = linenoise
+	url = git@github.com:GerHobbelt/linenoise.git
+[submodule "pthread-win32"]
+	path = pthread-win32
+	url = git@github.com:GerHobbelt/pthread-win32.git
+[submodule "boost"]
+	path = boost
+	url = git@github.com:GerHobbelt/boost-svn.git

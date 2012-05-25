@@ -10,3 +10,8 @@
 *.lai
 *.la
 *.a
+
+*.exe
+*.user
+*.bak
+muncher4
