@@ -1,5 +1,5 @@
 /*
- * wsclean
+ * muncher4
 
   Copyright (C) 2012 Ger Hobbelt, www.hebbut.net
 
@@ -22,73 +22,133 @@
 */
 
 /*
-This little tool is a quick way to remove empty directories and empty directory trees.
+This little tool is a quick way to scan and process huge asset trees on local
+and network storage.
 
-Features:
-
-- recursively removes empty directories
-- fast
+Supports and expects file systems with Unicode support.
 */
 
-#include "mongoose_sys_porting.h"  // ripped from my mongoose clone
-#include "getopts.h"
+// Copyright Vladimir Prus 2002-2004.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt
+// or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+#include <boost/program_options.hpp>
+
+using namespace boost;
+namespace po = boost::program_options;
+
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+using namespace std;
 
 
-#define  ABSPATH_MAX   (PATH_MAX > 1024 ? PATH_MAX * 2 : 2048)
-
-
-typedef enum command
+// A helper function to simplify the main part.
+template<class T>
+ostream& operator<<(ostream& os, const vector<T>& v)
 {
-    ARG_HELP = 1,
-    ARG_VERBOSE,
-} command_t;
+	copy(v.begin(), v.end(), ostream_iterator<T>(os, " ")); 
+	return os;
+}
 
-static const option_t opts[] =
+int main(int ac, char* av[])
 {
-    {
-        ARG_HELP,
-            "h",
-            "help",
-            "this help screen",
-            0
-    },
-    {
-        ARG_VERBOSE,
-            "v",
-            "verbose",
-            "print process progress to stderr",
-            0
-    },
-    { 0, 0, 0, 0, 0 }               // sentinel
-};
+	try {
+		int opt;
+		int portnum;
+		po::options_description desc("Allowed options");
+		desc.add_options()
+			("help", "produce help message")
+			("optimization", po::value<int>(&opt)->default_value(10), 
+			"optimization level")
+			("verbose,v", po::value<int>()->implicit_value(1),
+			"enable verbosity (optionally specify level)")
+			("listen,l", po::value<int>(&portnum)->implicit_value(1001)
+			->default_value(0,"no"),
+			"listen on a port.")
+			("include-path,I", po::value< vector<string> >(), 
+			"include path")
+			("input-file", po::value< vector<string> >(), "input file")
+			;
 
-const char *filename(const char *path)
+		po::positional_options_description p;
+		p.add("input-file", -1);
+
+		po::variables_map vm;
+		po::store(po::command_line_parser(ac, av).
+			options(desc).positional(p).run(), vm);
+		po::notify(vm);
+
+		if (vm.count("help")) {
+			cout << "Usage: options_description [options]\n";
+			cout << desc;
+			return 0;
+		}
+
+		if (vm.count("include-path"))
+		{
+			cout << "Include paths are: " 
+				<< vm["include-path"].as< vector<string> >() << "\n";
+		}
+
+		if (vm.count("input-file"))
+		{
+			cout << "Input files are: " 
+				<< vm["input-file"].as< vector<string> >() << "\n";
+		}
+
+		if (vm.count("verbose")) {
+			cout << "Verbosity enabled.  Level is " << vm["verbose"].as<int>()
+				<< "\n";
+		}
+
+		cout << "Optimization level is " << opt << "\n";                
+
+		cout << "Listen port is " << portnum << "\n";                
+	}
+	catch(std::exception& e)
+	{
+		cout << e.what() << "\n";
+		return 1;
+	}    
+	return 0;
+}
+
+
+
+
+#if 0
+
+
+
+const wchar_t *filename(const wchar_t *path)
 {
-    const char *delims = "/\\:";
+    const wchar_t *delims = L"/\\:";
 
     for ( ; *delims; delims++)
     {
-        const char *p = strrchr(path, *delims);
+        const wchar_t *p = wcsrchr(path, *delims);
         if (p) path = p + 1;
     }
     return path;
 }
 
-static const char **infiles = NULL;
+static const wchar_t **infiles = NULL;
 
-void add_infile(const char *path)
+void add_infile(const wchar_t *path)
 {
     int idx = 0;
 
     if (!infiles)
     {
-        infiles = (const char **)malloc(2 * sizeof(*infiles));
+        infiles = (const wchar_t **)malloc(2 * sizeof(*infiles));
     }
     else
     {
         for (idx = 0; infiles[idx]; idx++)
             ;
-        infiles = (const char **)realloc((void *)infiles, (idx + 2) * sizeof(*infiles));
+        infiles = (const wchar_t **)realloc((void *)infiles, (idx + 2) * sizeof(*infiles));
     }
     infiles[idx] = path;
     infiles[++idx] = NULL;
@@ -99,13 +159,13 @@ typedef struct
     unsigned verbose: 2;
 } cmd_t;
 
-char *strtolower(char *s)
+wchar_t *strtolower(wchar_t *s)
 {
     while (*s)
     {
         if (*s < 127)
         {
-            *s = (char)tolower(*s);
+            *s = (wchar_t)tolower(*s);
         }
         s++;
     }
@@ -113,7 +173,7 @@ char *strtolower(char *s)
 }
 
 
-int pop_filedef(const char **filepath)
+int pop_filedef(const wchar_t **filepath)
 {
     static int idx = 0;
 
@@ -135,17 +195,8 @@ int pop_filedef(const char **filepath)
 
 
 
-// code ripped from mongoose and tweaked:
-
-
-
-
-
-
-#if defined(_WIN32) && !defined(__SYMBIAN32__)
-
 // For Windows, change all slashes to backslashes in path names.
-static void change_slashes_to_backslashes(char *path) {
+static void change_slashes_to_backslashes(wchar_t *path) {
   int i;
 
   for (i = 0; path[i] != '\0'; i++) {
@@ -161,8 +212,8 @@ static void change_slashes_to_backslashes(char *path) {
 
 // Encode 'path' which is assumed UTF-8 string, into UNICODE string.
 // wbuf and wbuf_len is a target buffer and its length.
-static void to_unicode(const char *path, wchar_t *wbuf, size_t wbuf_len) {
-  char buf[ABSPATH_MAX], buf2[ABSPATH_MAX], *p;
+static void to_unicode(const wchar_t *path, wchar_t *wbuf, size_t wbuf_len) {
+  wchar_t buf[ABSPATH_MAX], buf2[ABSPATH_MAX], *p;
 
   strncpy(buf, path, sizeof(buf));
   buf[sizeof(buf) - 1] = 0;
@@ -276,7 +327,7 @@ static int clean_dirtree_w(const wchar_t *dir, const wchar_t *dir4err, const cmd
 }
 
 
-static int clean_dirtree(const char *dir, const cmd_t *cmd) 
+static int clean_dirtree(const wchar_t *dir, const cmd_t *cmd) 
 {
   wchar_t wbuf[ABSPATH_MAX];
 
@@ -298,81 +349,24 @@ static int clean_dirtree(const char *dir, const cmd_t *cmd)
 
 
 
-#else
-
-static int clean_dirtree(const char *dir, const cmd_t *cmd) 
-{
-  char path[ABSPATH_MAX];
-  struct dirent *dp;
-  struct stat st;
-  DIR *dirp;
-
-  if ((dirp = opendir(dir)) == NULL) {
-    return 0;
-  } 
-  else 
-  {
-	  int counter = 0;
-
-    while ((dp = readdir(dirp)) != NULL) 
-	{
-		struct mgstat st;
-
-      // Do not show current dir
-      if (!strcmp(dp->d_name, ".") ||
-          !strcmp(dp->d_name, ".."))
-        continue;
-
-      snprintf(path, sizeof(path), "%s%c%s", dir, '/', dp->d_name);
-
-      if (stat(path, &st) != 0) 
-	  {
-        memset(&st, 0, sizeof(st));
-      }
-
-	  if (S_ISDIR(st.st_mode))
-	  {
-		int rv = clean_dirtree(path);
-
-		if (0 == rv)
-		{
-			rmdir(path);
-		}
-		else if (rv > 0)
-		{
-			counter += rv;
-		}
-	  }
-	  else
-		  counter++;
-    }
-    (void) closedir(dirp);
-
-	// return file counter: when > 0, don't even try to remove the parent dir - optimization
-	return counter;
-  }
-}
-
-#endif // _WIN32
 
 
 
-
-int main(int argc, const char **argv)
+int wmain(int argc, const wchar_t **argv)
 {
     unsigned int opt;
-    const char *param;
-    const char *appname = filename(argv[0]);
+    const wchar_t *param;
+    const wchar_t *appname = filename(argv[0]);
     cmd_t cmd = {0};
-    const char *fpath;
-    const char *fname;
-    const char *fname4err;
+    const wchar_t *fpath;
+    const wchar_t *fname;
+    const wchar_t *fname4err;
 
     getopts_init(argc, argv, appname);
 
     for (;;)
     {
-        char *p;
+        wchar_t *p;
         unsigned long l;
 
         opt = getopts(opts, &param);
@@ -435,4 +429,8 @@ int main(int argc, const char **argv)
 	if (cmd.verbose) fprintf(stderr, "Processing: ---done---\n");
 	exit(EXIT_SUCCESS);
 }
+
+
+
+#endif
 

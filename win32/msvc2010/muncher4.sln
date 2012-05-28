@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "linenoise", "..\..\linenois
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support Libs", "Support Libs", "{52785EF4-BD66-4078-9207-B4AFD3205EF1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "recrmdir", "..\..\..\recrmdir\win32\msvc2010\recrmdir.vcxproj", "{C3AEFD26-0598-D446-8685-EB404D1B925D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Itanium = Debug|Itanium
@@ -135,6 +137,18 @@ Global
 		{99BC5627-CDD6-459D-AEEC-4D8D12D2D772}.Release|Win32.Build.0 = Release|Win32
 		{99BC5627-CDD6-459D-AEEC-4D8D12D2D772}.Release|x64.ActiveCfg = Release|x64
 		{99BC5627-CDD6-459D-AEEC-4D8D12D2D772}.Release|x64.Build.0 = Release|x64
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Debug|Itanium.ActiveCfg = Debug|Itanium
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Debug|Itanium.Build.0 = Debug|Itanium
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Debug|Win32.Build.0 = Debug|Win32
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Debug|x64.ActiveCfg = Debug|x64
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Debug|x64.Build.0 = Debug|x64
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Release|Itanium.ActiveCfg = Release|Itanium
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Release|Itanium.Build.0 = Release|Itanium
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Release|Win32.ActiveCfg = Release|Win32
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Release|Win32.Build.0 = Release|Win32
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Release|x64.ActiveCfg = Release|x64
+		{C3AEFD26-0598-D446-8685-EB404D1B925D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
