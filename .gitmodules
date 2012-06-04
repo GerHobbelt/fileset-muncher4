@@ -1,6 +1,3 @@
-[submodule "libtre"]
-	path = libtre
-	url = git@github.com:GerHobbelt/libtre.git
 [submodule "linenoise"]
 	path = linenoise
 	url = git@github.com:GerHobbelt/linenoise.git
